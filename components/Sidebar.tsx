@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const navItems = [
   { href: "/", label: "Priors", icon: "◈" },
@@ -11,6 +11,13 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch("/api/auth", { method: "DELETE" });
+    router.push("/login");
+    router.refresh();
+  };
 
   return (
     <aside className="w-60 h-screen border-r border-white/[0.06] bg-[#09090b]/80 backdrop-blur-xl flex flex-col fixed left-0 top-0 z-30">
@@ -50,10 +57,16 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="p-5 pt-3 border-t border-white/[0.04]">
+      <div className="p-5 pt-3 border-t border-white/[0.04] flex items-center justify-between">
         <p className="text-[11px] text-zinc-600">
           Track what shapes your thinking
         </p>
+        <button
+          onClick={handleLogout}
+          className="text-[11px] text-zinc-700 hover:text-zinc-400 transition-colors"
+        >
+          Log out
+        </button>
       </div>
     </aside>
   );
