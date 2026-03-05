@@ -25,8 +25,10 @@ export default function Sidebar() {
         <h1 className="text-sm font-semibold text-white/90 tracking-tight">
           Lets be real, we&apos;ve all got priors.
         </h1>
+        <p className="text-[11px] text-zinc-600">Track what shapes your thinking.</p>
         <div className="mt-2 h-px bg-gradient-to-r from-violet-500/20 via-blue-500/20 to-transparent" />
       </div>
+      
 
       <nav className="flex-1 px-3 py-2">
         {navItems.map((item) => {
@@ -58,9 +60,6 @@ export default function Sidebar() {
       </nav>
 
       <div className="p-5 pt-3 border-t border-white/[0.04] flex items-center justify-between">
-        <p className="text-[11px] text-zinc-600">
-          Track what shapes your thinking
-        </p>
         <button
           onClick={handleLogout}
           className="text-[11px] text-zinc-700 hover:text-zinc-400 transition-colors"
