@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Entry {
+  id              String   @id @default(cuid())
+  title           String
+  content         String
+  type            String   // article, post, statistic, image, hot_take, pdf
+  url             String?
+  summary         String?
+  notes           String?  // user's own notes on what to focus on
+  agreement       Float    @default(0)  // -1 to 1, how much user agrees
+  weight          Float    @default(0.5) // 0 to 1, how much impact this should have
+  aiSpeedSignal   Float    @default(0)  // -1 (gradual) to 1 (fast) — what the piece argues
+  econAdaptSignal Float    @default(0)  // -1 (low capacity) to 1 (high capacity) — what the piece argues
+  topics          String   @default("") // comma-separated topic tags
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
