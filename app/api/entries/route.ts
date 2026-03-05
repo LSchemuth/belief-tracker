@@ -5,16 +5,19 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const type = searchParams.get("type");
   const topic = searchParams.get("topic");
+  const mapId = searchParams.get("mapId");
   const sort = searchParams.get("sort") || "createdAt";
   const order = searchParams.get("order") || "desc";
 
   const where: Record<string, unknown> = {};
   if (type) where.type = type;
   if (topic) where.topics = { contains: topic };
+  if (mapId) where.mapId = mapId;
 
   const entries = await prisma.entry.findMany({
     where,
     orderBy: { [sort]: order },
+    include: { map: true },
   });
 
   return NextResponse.json(entries);
@@ -24,12 +27,12 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
     title, content, type, url, summary, notes,
-    agreement, weight, aiSpeedSignal, econAdaptSignal, topics,
+    agreement, weight, xSignal, ySignal, topics, mapId,
   } = body;
 
-  if (!title || !content || !type) {
+  if (!title || !content || !type || !mapId) {
     return NextResponse.json(
-      { error: "title, content, and type are required" },
+      { error: "title, content, type, and mapId are required" },
       { status: 400 }
     );
   }
@@ -44,9 +47,10 @@ export async function POST(req: NextRequest) {
       notes: notes || null,
       agreement: agreement ?? 0,
       weight: weight ?? 0.5,
-      aiSpeedSignal: aiSpeedSignal ?? 0,
-      econAdaptSignal: econAdaptSignal ?? 0,
+      xSignal: xSignal ?? 0,
+      ySignal: ySignal ?? 0,
       topics: topics || "",
+      mapId,
     },
   });
 

@@ -6,7 +6,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const entry = await prisma.entry.findUnique({ where: { id } });
+  const entry = await prisma.entry.findUnique({
+    where: { id },
+    include: { map: true },
+  });
   if (!entry) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

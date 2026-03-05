@@ -1,5 +1,18 @@
 export type EntryType = "article" | "post" | "statistic" | "image" | "hot_take" | "pdf";
 
+export interface BeliefMap {
+  id: string;
+  name: string;
+  xAxisLabel: string;
+  xAxisLow: string;
+  xAxisHigh: string;
+  yAxisLabel: string;
+  yAxisLow: string;
+  yAxisHigh: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Entry {
   id: string;
   title: string;
@@ -10,16 +23,18 @@ export interface Entry {
   notes?: string | null;
   agreement: number;
   weight: number;
-  aiSpeedSignal: number;
-  econAdaptSignal: number;
+  xSignal: number;
+  ySignal: number;
   topics: string;
+  mapId: string;
+  map?: BeliefMap;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface MapPosition {
-  x: number; // AI capability speed: -1 (gradual) to 1 (fast)
-  y: number; // Economic adaptation capacity: -1 (low) to 1 (high)
+  x: number;
+  y: number;
 }
 
 export const ENTRY_TYPES: { value: EntryType; label: string }[] = [

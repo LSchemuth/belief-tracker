@@ -4,18 +4,46 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import BeliefMatrix from "@/components/BeliefMatrix";
 import EntryCard from "@/components/EntryCard";
-import { Entry } from "@/lib/types";
+import MapSelector from "@/components/MapSelector";
+import CreateMapModal from "@/components/CreateMapModal";
+import { Entry, BeliefMap } from "@/lib/types";
 
 export default function Home() {
+  const [maps, setMaps] = useState<BeliefMap[]>([]);
+  const [selectedMapId, setSelectedMapId] = useState<string>("");
   const [recentEntries, setRecentEntries] = useState<Entry[]>([]);
   const [mapKey, setMapKey] = useState(0);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
-    fetch("/api/entries?sort=createdAt&order=desc")
+    fetch("/api/maps")
+      .then((res) => res.json())
+      .then((data) => {
+        setMaps(data);
+        if (data.length > 0) {
+          const saved = localStorage.getItem("selectedMapId");
+          const validSaved =
+            saved && data.some((m: BeliefMap) => m.id === saved);
+          setSelectedMapId(validSaved ? saved : data[0].id);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedMapId) return;
+    localStorage.setItem("selectedMapId", selectedMapId);
+    fetch(`/api/entries?mapId=${selectedMapId}&sort=createdAt&order=desc`)
       .then((res) => res.json())
       .then((data) => setRecentEntries(data.slice(0, 5)))
       .catch(console.error);
-  }, []);
+  }, [selectedMapId]);
+
+  const handleMapCreated = (map: BeliefMap) => {
+    setMaps((prev) => [...prev, map]);
+    setSelectedMapId(map.id);
+    setShowCreateModal(false);
+  };
 
   return (
     <div className="py-10 px-8">
@@ -39,7 +67,20 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Matrix */}
           <div>
-            <BeliefMatrix refreshKey={mapKey} />
+            <BeliefMatrix
+              mapId={selectedMapId}
+              refreshKey={mapKey}
+              headerExtra={
+                maps.length > 0 ? (
+                  <MapSelector
+                    maps={maps}
+                    selectedMapId={selectedMapId}
+                    onSelect={setSelectedMapId}
+                    onCreateNew={() => setShowCreateModal(true)}
+                  />
+                ) : undefined
+              }
+            />
           </div>
 
           {/* Recent entries */}
@@ -85,6 +126,13 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {showCreateModal && (
+        <CreateMapModal
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleMapCreated}
+        />
+      )}
     </div>
   );
 }

@@ -1,19 +1,35 @@
 import { prisma } from "@/lib/db";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-// Computes the aggregate belief position from all entries.
-// Formula: prior_axis = Σ(signal_i × agreement_i × weight_i) / Σ(weight_i)
-// - agreement flips direction: disagree with "AI is fast" → pushes toward gradual
-// - weight scales influence: high weight entries pull more
-// Dots show raw evidence positions; the crosshair shows the aggregate prior.
-export async function GET() {
-  const entries = await prisma.entry.findMany();
+export async function GET(req: NextRequest) {
+  const mapId = req.nextUrl.searchParams.get("mapId");
+
+  if (!mapId) {
+    return NextResponse.json({ position: { x: 0, y: 0 }, entries: [], entryCount: 0 });
+  }
+
+  const map = await prisma.beliefMap.findUnique({ where: { id: mapId } });
+  if (!map) {
+    return NextResponse.json({ error: "Map not found" }, { status: 404 });
+  }
+
+  const entries = await prisma.entry.findMany({ where: { mapId } });
 
   if (entries.length === 0) {
     return NextResponse.json({
       position: { x: 0, y: 0 },
       entries: [],
       entryCount: 0,
+      map: {
+        id: map.id,
+        name: map.name,
+        xAxisLabel: map.xAxisLabel,
+        xAxisLow: map.xAxisLow,
+        xAxisHigh: map.xAxisHigh,
+        yAxisLabel: map.yAxisLabel,
+        yAxisLow: map.yAxisLow,
+        yAxisHigh: map.yAxisHigh,
+      },
     });
   }
 
@@ -22,17 +38,16 @@ export async function GET() {
   let totalWeight = 0;
 
   const entryPositions = entries.map((entry) => {
-    xWeightedSum += entry.aiSpeedSignal * entry.agreement * entry.weight;
-    yWeightedSum += entry.econAdaptSignal * entry.agreement * entry.weight;
+    xWeightedSum += entry.xSignal * entry.agreement * entry.weight;
+    yWeightedSum += entry.ySignal * entry.agreement * entry.weight;
     totalWeight += entry.weight;
 
-    // Return raw evidence positions for dots on the map
     return {
       id: entry.id,
       title: entry.title,
       type: entry.type,
-      x: entry.aiSpeedSignal,
-      y: entry.econAdaptSignal,
+      x: entry.xSignal,
+      y: entry.ySignal,
       agreement: entry.agreement,
       weight: entry.weight,
     };
@@ -47,5 +62,15 @@ export async function GET() {
     position,
     entries: entryPositions,
     entryCount: entries.length,
+    map: {
+      id: map.id,
+      name: map.name,
+      xAxisLabel: map.xAxisLabel,
+      xAxisLow: map.xAxisLow,
+      xAxisHigh: map.xAxisHigh,
+      yAxisLabel: map.yAxisLabel,
+      yAxisLow: map.yAxisLow,
+      yAxisHigh: map.yAxisHigh,
+    },
   });
 }

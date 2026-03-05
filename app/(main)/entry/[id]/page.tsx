@@ -106,6 +106,13 @@ export default function EntryDetailPage({
   });
   const hasChanges = agreement !== entry.agreement || weight !== entry.weight;
 
+  const xAxisLabel = entry.map?.xAxisLabel || "X Axis";
+  const xAxisLow = entry.map?.xAxisLow || "Low";
+  const xAxisHigh = entry.map?.xAxisHigh || "High";
+  const yAxisLabel = entry.map?.yAxisLabel || "Y Axis";
+  const yAxisLow = entry.map?.yAxisLow || "Low";
+  const yAxisHigh = entry.map?.yAxisHigh || "High";
+
   return (
     <div className="py-10 px-8 max-w-2xl mx-auto animate-in">
       <button
@@ -123,6 +130,14 @@ export default function EntryDetailPage({
           </span>
           <span className="text-[10px] text-zinc-700">&middot;</span>
           <span className="text-[10px] text-zinc-600">{date}</span>
+          {entry.map && (
+            <>
+              <span className="text-[10px] text-zinc-700">&middot;</span>
+              <span className="text-[10px] text-zinc-500">
+                {entry.map.name}
+              </span>
+            </>
+          )}
         </div>
         <h1 className="text-2xl font-semibold text-white/90">{entry.title}</h1>
         {entry.url && (
@@ -171,22 +186,18 @@ export default function EntryDetailPage({
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-zinc-500 block text-xs mb-0.5">
-              AI Capability Speed
+              {xAxisLabel}
             </span>
             <span className="font-medium text-white/80">
-              {signalLabel(entry.aiSpeedSignal, "Gradual", "Fast")}
+              {signalLabel(entry.xSignal, xAxisLow, xAxisHigh)}
             </span>
           </div>
           <div>
             <span className="text-zinc-500 block text-xs mb-0.5">
-              Economic Adaptation
+              {yAxisLabel}
             </span>
             <span className="font-medium text-white/80">
-              {signalLabel(
-                entry.econAdaptSignal,
-                "Low Capacity",
-                "High Capacity"
-              )}
+              {signalLabel(entry.ySignal, yAxisLow, yAxisHigh)}
             </span>
           </div>
         </div>

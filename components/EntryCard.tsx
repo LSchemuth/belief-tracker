@@ -69,6 +69,14 @@ export default function EntryCard({
               </span>
               <span className="text-[10px] text-zinc-700">&middot;</span>
               <span className="text-[10px] text-zinc-600">{date}</span>
+              {entry.map && (
+                <>
+                  <span className="text-[10px] text-zinc-700">&middot;</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-400/70 border border-violet-500/10">
+                    {entry.map.name}
+                  </span>
+                </>
+              )}
             </div>
             <h3 className="text-sm font-medium text-white/85 truncate group-hover:text-white transition-colors">
               {entry.title}

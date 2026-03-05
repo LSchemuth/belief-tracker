@@ -6,7 +6,25 @@ import { EntryType } from "@/lib/types";
 
 type InputMode = "idle" | "processing" | "review";
 
-export default function EntryForm() {
+interface EntryFormProps {
+  mapId: string;
+  xAxisLabel: string;
+  xAxisLow: string;
+  xAxisHigh: string;
+  yAxisLabel: string;
+  yAxisLow: string;
+  yAxisHigh: string;
+}
+
+export default function EntryForm({
+  mapId,
+  xAxisLabel,
+  xAxisLow,
+  xAxisHigh,
+  yAxisLabel,
+  yAxisLow,
+  yAxisHigh,
+}: EntryFormProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
@@ -23,8 +41,8 @@ export default function EntryForm() {
   const [url, setUrl] = useState("");
   const [summary, setSummary] = useState("");
   const [topics, setTopics] = useState("");
-  const [aiSpeedSignal, setAiSpeedSignal] = useState(0);
-  const [econAdaptSignal, setEconAdaptSignal] = useState(0);
+  const [xSignal, setXSignal] = useState(0);
+  const [ySignal, setYSignal] = useState(0);
   const [signalReasoning, setSignalReasoning] = useState("");
   const [agreement, setAgreement] = useState(0);
   const [weight, setWeight] = useState(0.5);
@@ -56,13 +74,13 @@ export default function EntryForm() {
       const res = await fetch("/api/summarize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(params),
+        body: JSON.stringify({ ...params, mapId }),
       });
       const data = await res.json();
       setTitle(data.title || params.title || "Untitled");
       setSummary(data.summary || "");
-      setAiSpeedSignal(data.aiSpeedSignal ?? 0);
-      setEconAdaptSignal(data.econAdaptSignal ?? 0);
+      setXSignal(data.xSignal ?? 0);
+      setYSignal(data.ySignal ?? 0);
       setSignalReasoning(data.signalReasoning || "");
       if (data.topics?.length) {
         setTopics(data.topics.join(", "));
@@ -71,7 +89,7 @@ export default function EntryForm() {
         setType(data.type as EntryType);
       }
     },
-    []
+    [mapId]
   );
 
   const processUrl = useCallback(
@@ -243,9 +261,10 @@ export default function EntryForm() {
           notes: notes || null,
           agreement,
           weight,
-          aiSpeedSignal,
-          econAdaptSignal,
+          xSignal,
+          ySignal,
           topics,
+          mapId,
         }),
       });
       if (res.ok) {
@@ -267,8 +286,8 @@ export default function EntryForm() {
     setUrl("");
     setSummary("");
     setTopics("");
-    setAiSpeedSignal(0);
-    setEconAdaptSignal(0);
+    setXSignal(0);
+    setYSignal(0);
     setSignalReasoning("");
     setAgreement(0);
     setWeight(0.5);
@@ -438,9 +457,9 @@ export default function EntryForm() {
         <div className="space-y-4">
           <div>
             <div className="flex justify-between items-center text-sm mb-2">
-              <span className="text-zinc-500">AI Capability Speed</span>
+              <span className="text-zinc-500">{xAxisLabel}</span>
               <span className="font-medium text-white/80 text-xs">
-                {signalLabel(aiSpeedSignal, "Gradual", "Fast")}
+                {signalLabel(xSignal, xAxisLow, xAxisHigh)}
               </span>
             </div>
             <input
@@ -448,16 +467,16 @@ export default function EntryForm() {
               min="-1"
               max="1"
               step="0.05"
-              value={aiSpeedSignal}
-              onChange={(e) => setAiSpeedSignal(parseFloat(e.target.value))}
+              value={xSignal}
+              onChange={(e) => setXSignal(parseFloat(e.target.value))}
               className="w-full"
             />
           </div>
           <div>
             <div className="flex justify-between items-center text-sm mb-2">
-              <span className="text-zinc-500">Economic Adaptation</span>
+              <span className="text-zinc-500">{yAxisLabel}</span>
               <span className="font-medium text-white/80 text-xs">
-                {signalLabel(econAdaptSignal, "Low Capacity", "High Capacity")}
+                {signalLabel(ySignal, yAxisLow, yAxisHigh)}
               </span>
             </div>
             <input
@@ -465,8 +484,8 @@ export default function EntryForm() {
               min="-1"
               max="1"
               step="0.05"
-              value={econAdaptSignal}
-              onChange={(e) => setEconAdaptSignal(parseFloat(e.target.value))}
+              value={ySignal}
+              onChange={(e) => setYSignal(parseFloat(e.target.value))}
               className="w-full"
             />
           </div>
