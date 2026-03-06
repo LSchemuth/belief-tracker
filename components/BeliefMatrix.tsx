@@ -225,11 +225,11 @@ export default function BeliefMatrix({
       </div>
 
       {/* Hover tooltip — always rendered to prevent layout shift */}
-      <div className={`mt-3 p-3 glass rounded-lg transition-opacity duration-150 ${hoveredEntry ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+      <div className={`mt-0.1 px-3 py-1 glass rounded-lg transition-opacity duration-150 ${hoveredEntry ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
         <p className="text-sm font-medium text-white/90 truncate">
           {hoveredEntry?.title || "\u00A0"}
         </p>
-        <div className="mt-1.5 flex gap-4 text-xs text-zinc-500">
+        <div className="mt-0.1 flex gap-4 text-xs text-zinc-500">
           <span>
             Agreement:{" "}
             <strong className="text-zinc-300">
@@ -248,7 +248,7 @@ export default function BeliefMatrix({
 
       {/* Legend */}
       {entries.length > 0 && (
-        <div className="mt-3 flex items-center gap-5 text-[11px] text-zinc-600">
+        <div className="mt-0 flex items-center gap-5 text-[11px] text-zinc-600">
           <div className="flex items-center gap-1.5">
             <div
               className="w-4 h-4 rounded-full border-2 border-violet-400/60 bg-violet-400/10 flex items-center justify-center"
